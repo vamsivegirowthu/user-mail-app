@@ -1,15 +1,23 @@
 from fastapi import FastAPI
 import os
 import resend
+from twilio.rest import Client
 
 app = FastAPI()
 
+# Resend setup
 resend.api_key = os.getenv("RESEND_API_KEY")
+
+# Twilio setup
+account_sid = os.getenv("TWILIO_ACCOUNT_SID")
+auth_token = os.getenv("TWILIO_AUTH_TOKEN")
+twilio_client = Client(account_sid, auth_token)
 
 @app.post("/register")
 def register_user(name: str, email: str):
 
     try:
+        # 1️⃣ Send Email
         resend.Emails.send({
             "from": "onboarding@resend.dev",
             "to": os.getenv("EMAIL_USER"),
@@ -17,7 +25,14 @@ def register_user(name: str, email: str):
             "html": f"<p>Name: {name}</p><p>Email: {email}</p>"
         })
 
-        return {"message": "Email sent successfully"}
+        # 2️⃣ Send WhatsApp
+        twilio_client.messages.create(
+            body=f"New User Registered\nName: {name}\nEmail: {email}",
+            from_=os.getenv("TWILIO_WHATSAPP_FROM"),
+            to=f"whatsapp:{os.getenv('MY_PHONE_NUMBER')}"
+        )
+
+        return {"message": "Email & WhatsApp sent successfully"}
 
     except Exception as e:
         return {"error": str(e)}
