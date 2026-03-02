@@ -36,3 +36,6 @@ def register_user(name: str, email: str):
 
     except Exception as e:
         return {"error": str(e)}
+
+
+        
