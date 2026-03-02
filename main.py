@@ -29,7 +29,7 @@ def register_user(name: str, email: str):
         twilio_client.messages.create(
             body=f"New User Registered\nName: {name}\nEmail: {email}",
             from_=os.getenv("TWILIO_WHATSAPP_FROM"),
-            to=f"whatsapp:{os.getenv('MY_PHONE_NUMBER')}"
+            to=os.getenv("MY_PHONE_NUMBER")
         )
 
         return {"message": "Email & WhatsApp sent successfully"}
